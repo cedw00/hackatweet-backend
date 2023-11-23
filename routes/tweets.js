@@ -38,4 +38,14 @@ router.get('/', async (req, res) => {
     }
 })
 
+router.get('/:hashtag', async (req, res) => {
+  const filteredTweets = await Tweet.find({ hashtag: req.params.hashtag });
+
+  if (filteredTweets.length > 0) {
+    res.json({ result: true, tweets: filteredTweets });
+  } else {
+    res.json({ result: false, error: 'No tweets found with #hashtagname' });
+}
+})
+
 module.exports = router;
