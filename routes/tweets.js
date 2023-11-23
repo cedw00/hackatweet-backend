@@ -46,6 +46,18 @@ router.get('/:hashtag', async (req, res) => {
   } else {
     res.json({ result: false, error: 'No tweets found with #hashtagname' });
 }
+});
+
+router.delete('/:id', async (req, res) => {
+  const tweet = await Tweet.findById({ _id: req.params.id });
+
+  if (tweet) {
+    Tweet.deleteOne({ _id: tweet._id }).then(() => {
+      res.json({ result: true });
+    });
+  } else {
+    res.json({ result: false, error: 'This tweet does not exist' });
+  }
 })
 
 module.exports = router;
