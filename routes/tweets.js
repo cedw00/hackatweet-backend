@@ -20,6 +20,7 @@ router.post('/', async (req, res) => {
         createdAt: new Date(),
         hashtag: hashtag[0],
         message: message,
+        likes: 0,
         user: user[0]._id,
     });
 
@@ -27,6 +28,19 @@ router.post('/', async (req, res) => {
     res.json({ result: true, tweet: newTweet });
   }
 });
+
+router.put('/', async (req, res) => {
+  const tweet = await Tweet.findById({ _id: req.body.id });
+
+  if (tweet) {
+    Tweet.updateOne({ _id: tweet._id }, { likes: tweet.likes + 1 })
+    .then(updatedTweet => {
+      res.json({ result: true });
+    })
+  } else {
+    res.json({ result: false, error: 'Cannot find tweet in database' });
+  }
+})
 
 router.get('/', async (req, res) => {
     const tweets = await Tweet.find();
@@ -52,12 +66,16 @@ router.delete('/:id', async (req, res) => {
   const tweet = await Tweet.findById({ _id: req.params.id });
 
   if (tweet) {
-    Tweet.deleteOne({ _id: tweet._id }).then(() => {
-      res.json({ result: true });
+    Tweet.deleteOne({ _id: tweet._id }).then((status) => {
+      if (status.acknowledged) {
+        Tweet.find().then(allTweets => {
+          res.json({ result: true, tweets: allTweets });
+        })
+      }
     });
   } else {
     res.json({ result: false, error: 'This tweet does not exist' });
   }
-})
+});
 
 module.exports = router;
