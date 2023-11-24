@@ -29,13 +29,17 @@ router.post('/', async (req, res) => {
   }
 });
 
-router.put('/', async (req, res) => {
-  const tweet = await Tweet.findById({ _id: req.body.id });
+router.put('/:id', async (req, res) => {
+  const tweet = await Tweet.findById({ _id: req.params.id });
 
   if (tweet) {
     Tweet.updateOne({ _id: tweet._id }, { likes: tweet.likes + 1 })
     .then(updatedTweet => {
-      res.json({ result: true });
+      if (updatedTweet.acknowledged) {
+        Tweet.find().then(allTweets => {
+          res.json({ result: true, tweets: allTweets });
+        })
+      }
     })
   } else {
     res.json({ result: false, error: 'Cannot find tweet in database' });
